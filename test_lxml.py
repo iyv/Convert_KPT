@@ -1,33 +1,28 @@
 #!/usr/bin/env python3
+import os
 from lxml import etree
-""" Получение данных из КПТ """
-doc=etree.parse("0000.xml")
+""" Данные со всех файлов КПТ в текущей папке """
+path_to_file='.'
+dir_list = os.listdir(path=path_to_file)
+txt_file=open(path_to_file[2:]+'data.txt', mode='w')
 
-for elem in doc.iter("Cadastral_Block"):
-    print(elem.get("CadastralNumber"))
-for elem in doc.iter("Number"):
-    print(elem.text)
-for elem in doc.iter("Date"):
-    print(elem.text)
-for elem in doc.iter("Organization"):
-    print(elem.text)
-for elem in doc.iter("Cadastral_Block"):
-    print(elem.get("CadastralNumber"))
+for file_name in dir_list:
+    if (file_name[-3:])=='xml':
+        doc=etree.parse(file_name)
+        txt_file.write('-----------------------------------------------------\n')
 
-    
-for elem1 in doc.iter("Parcel"):
-    print('=================================')
-    #print(elem1.attrib)
-    uchastok_number=elem1.get('CadastralNumber')
-    print('Cadastr Number: '+uchastok_number)
-    print(uchastok_number[12:])
-    for elem2 in elem1.iter("Entity_Spatial"):
-        #print('-------------------------')
-        #print(elem2.attrib)
-        print('----------------------------------')
-        for elem3 in elem2.iter("Spelement_Unit"):
-            for elem4 in elem3.iter("Ordinate"):
-                X=elem4.get('X')
-                Y=elem4.get('Y')
-                print('Koord X: '+X)
-                print('Koord Y: '+Y)
+        for elem in doc.iter("Cadastral_Block"):
+            print(elem.get("CadastralNumber"))
+            txt_file.write('Кадастровый номер: '+elem.get("CadastralNumber")+'\n')
+        for elem in doc.iter("Number"):
+            txt_file.write(elem.text+'\n')
+        for elem in doc.iter("Date"):
+            temp_elem=elem.text
+            year=temp_elem[0:4]
+            months=temp_elem[5:7]
+            day=temp_elem[-2:]
+            txt_file.write(day+'.'+months+'.'+year+'\n')
+            
+        for elem in doc.iter("Organization"):
+            txt_file.write(elem.text+'\n')
+txt_file.close()
